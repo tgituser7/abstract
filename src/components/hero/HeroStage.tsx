@@ -47,6 +47,9 @@ const HIDDEN_AFTER_COLLAPSE = ["collage", "exhibition", "statement"];
 // Cards start this much further out and slide in to the cascade.
 const ENTRY_SPREAD = 1.8;
 
+// Playback speed of the whole sequence; raise to make it faster.
+const SPEED = 1.8;
+
 // How far the stage pushes in while the column collapses.
 const PUSH_IN = 1.2;
 
@@ -83,7 +86,7 @@ export default function HeroStage() {
         };
         applyClip();
 
-        const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } });
+        const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } }).timeScale(SPEED);
 
         // 1. Cards slide in from the sides into a diagonal cascade…
         tl.set(world.current, { scale: 0.92, autoAlpha: 0 });
@@ -155,7 +158,7 @@ export default function HeroStage() {
     <section
       ref={root}
       aria-label="Visual Record showreel"
-      className="relative h-[calc(100svh-69px)] min-h-[560px] overflow-hidden bg-[#e9e9e8]"
+      className="relative h-[100svh] min-h-[560px] overflow-hidden bg-[#e9e9e8]"
     >
       {/* Final full-bleed hero — sits beneath the card stack until it is revealed. */}
       <div ref={finale} className="invisible absolute inset-0 overflow-hidden bg-[#140806] text-white">
@@ -185,13 +188,12 @@ export default function HeroStage() {
             <p data-line className="font-serif-condensed text-2xl leading-tight sm:text-3xl">
               Every frame becomes part of a continuous narrative.
             </p>
-            <a
+            <span
               data-line
-              href="#services"
-              className="mt-5 inline-block font-mono text-xs uppercase tracking-[0.2em] text-white/80 hover:text-white"
+              className="mt-5 inline-block font-mono text-xs uppercase tracking-[0.2em] text-white/80"
             >
-              [ Scroll to enter ]
-            </a>
+              [ A continuous narrative in motion ]
+            </span>
           </div>
         </div>
       </div>
