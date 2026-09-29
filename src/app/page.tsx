@@ -1,69 +1,143 @@
-import Image from "next/image";
+import HeroStage from "@/components/hero/HeroStage";
+
+const services = [
+  {
+    title: "Brand Identity",
+    body: "Naming, logos, and visual systems that give your company a clear, memorable voice.",
+  },
+  {
+    title: "Product Design",
+    body: "Research-driven interfaces for web and mobile, from first sketch to shipped pixels.",
+  },
+  {
+    title: "Web Development",
+    body: "Fast, accessible sites built with modern tooling and designed to grow with you.",
+  },
+];
+
+const projects = [
+  { name: "Northwind", tag: "Brand · Web", shape: "circle", hue: "from-orange-400 to-rose-500" },
+  { name: "Lumen Health", tag: "Product", shape: "square", hue: "from-sky-400 to-indigo-500" },
+  { name: "Fieldnotes", tag: "Brand", shape: "triangle", hue: "from-emerald-400 to-teal-600" },
+  { name: "Orbit Pay", tag: "Product · Web", shape: "ring", hue: "from-violet-400 to-fuchsia-500" },
+];
+
+function Shape({ shape }: { shape: string }) {
+  const base = "bg-white/85 dark:bg-white/80";
+  switch (shape) {
+    case "circle":
+      return <div className={`size-24 rounded-full ${base}`} />;
+    case "square":
+      return <div className={`size-20 rotate-12 rounded-xl ${base}`} />;
+    case "triangle":
+      return (
+        <div
+          className={`size-24 ${base}`}
+          style={{ clipPath: "polygon(50% 0, 100% 100%, 0 100%)" }}
+        />
+      );
+    default:
+      return <div className="size-24 rounded-full border-[14px] border-white/85" />;
+  }
+}
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
+    <div className="flex flex-1 flex-col">
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between h-17 px-6">
+          <a href="#" className="flex items-center gap-2 font-semibold tracking-tight">
+            <span className="inline-block size-5 rounded-full bg-accent" />
+            Abstract
           </a>
+          <div className="hidden gap-8 text-sm text-muted sm:flex">
+            <a href="#services" className="hover:text-foreground">Services</a>
+            <a href="#work" className="hover:text-foreground">Work</a>
+            <a href="#contact" className="hover:text-foreground">Contact</a>
+          </div>
           <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#contact"
+            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-85"
           >
-            Documentation
+            Get Started
           </a>
-        </div>
+        </nav>
+      </header>
+
+      <main className="flex-1">
+        <HeroStage />
+
+        {/* Services */}
+        <section id="services" className="scroll-mt-20 border-t border-border bg-surface">
+          <div className="mx-auto max-w-6xl px-6 py-24">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">What we do</h2>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {services.map((s, i) => (
+                <article
+                  key={s.title}
+                  className="rounded-2xl border border-border bg-background p-8 transition hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <span className="font-mono text-sm text-accent">0{i + 1}</span>
+                  <h3 className="mt-4 text-xl font-semibold">{s.title}</h3>
+                  <p className="mt-3 text-muted">{s.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Work */}
+        <section id="work" className="scroll-mt-20 border-t border-border">
+          <div className="mx-auto max-w-6xl px-6 py-24">
+            <div className="flex items-end justify-between gap-4">
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Selected work</h2>
+              <p className="hidden text-muted sm:block">2023 — 2026</p>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2">
+              {projects.map((p) => (
+                <a key={p.name} href="#" className="group block">
+                  <div
+                    className={`flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${p.hue}`}
+                  >
+                    <div className="transition duration-500 group-hover:rotate-45 group-hover:scale-110">
+                      <Shape shape={p.shape} />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <h3 className="font-medium">{p.name}</h3>
+                    <span className="text-sm text-muted">{p.tag}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Contact */}
+        <section id="contact" className="scroll-mt-20 px-6 pb-24">
+          <div className="mx-auto max-w-6xl rounded-3xl bg-foreground px-8 py-16 text-center text-background sm:px-16">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-5xl">
+              Have something in mind?
+            </h2>
+            <p className="mx-auto mt-4 max-w-md opacity-70">
+              Tell us about your project and we&apos;ll get back to you within two business days.
+            </p>
+            <a
+              href="mailto:hello@example.com"
+              className="mt-8 inline-block rounded-full bg-accent px-8 py-3 font-medium text-white transition hover:brightness-110"
+            >
+              hello@example.com
+            </a>
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-muted sm:flex-row sm:justify-between">
+          <p>© {new Date().getFullYear()} Abstract Studio</p>
+          <p>Made with Next.js</p>
+        </div>
+      </footer>
     </div>
   );
 }
