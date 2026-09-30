@@ -10,7 +10,6 @@ import {
   ExhibitionScreen,
   FrameThreeScreen,
   FrameTwoScreen,
-  GRADES,
   IMAGES,
   PhotoScreen,
   RedScreen,
@@ -71,7 +70,6 @@ export default function HeroStage() {
   const root = useRef<HTMLDivElement>(null);
   const world = useRef<HTMLDivElement>(null);
   const finale = useRef<HTMLDivElement>(null);
-  const finaleImg = useRef<HTMLImageElement>(null);
   const finaleCopy = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -87,8 +85,8 @@ export default function HeroStage() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // The finale starts clipped to exactly where the pushed-in cards sit,
-        // so it reads as one more card in the stack until it zooms out.
+        // The finale starts as a box exactly where the pushed-in cards sit, so it
+        // reads as one more card in the stack until it moves toward the screen.
         const red = card("red");
         const insetX = (root.current!.offsetWidth - red.offsetWidth * PUSH_IN) / 2;
         const insetY = (root.current!.offsetHeight - red.offsetHeight * PUSH_IN) / 2;
@@ -98,21 +96,17 @@ export default function HeroStage() {
         const columnHeight = red.offsetHeight * (2 * COLUMN_REACH + 0.8);
         const fitScale = Math.min(0.92, root.current!.offsetHeight / columnHeight);
 
-        // Tween plain numbers: browsers normalise inset() strings to shorthand,
-        // which GSAP cannot interpolate reliably.
-        const clip = { x: insetX, y: insetY };
-        const applyClip = () => {
-          finale.current!.style.clipPath = `inset(${clip.y}px ${clip.x}px)`;
-        };
-        applyClip();
+        // Resize the box itself (not a clip over a fixed image) so the photo
+        // grows with the card, as if the card is travelling toward the viewer.
+        const cardBox = { top: insetY, bottom: insetY, left: insetX, right: insetX };
+        gsap.set(finale.current, cardBox);
 
         const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } }).timeScale(SPEED);
 
         // 1. Cards slide in from the sides into a diagonal cascade…
         tl.set(world.current, { scale: fitScale, autoAlpha: 0 });
         tl.set(finale.current, { autoAlpha: 0 });
-        tl.set(clip, { x: insetX, y: insetY, onComplete: applyClip });
-        tl.set(finaleImg.current, { scale: 1.35 });
+        tl.set(finale.current, cardBox);
         tl.set(copyLines, { autoAlpha: 0, yPercent: 60 });
         CARDS.forEach((c) =>
           tl.set(
@@ -162,10 +156,9 @@ export default function HeroStage() {
         });
         tl.set(world.current, { autoAlpha: 0 }, `peel+=${(EXITS.length - 1) * EXIT_STAGGER + EXIT_DURATION}`);
 
-        // 4. The last image zooms to fill the section and becomes the hero.
+        // 4. The last card travels toward the screen until it fills the section.
         tl.addLabel("finale", "+=0.5");
-        tl.to(clip, { x: 0, y: 0, duration: 1.8, onUpdate: applyClip }, "finale");
-        tl.to(finaleImg.current, { scale: 1, duration: 2.4, ease: "power2.out" }, "finale");
+        tl.to(finale.current, { top: 0, bottom: 0, left: 0, right: 0, duration: 1.6, ease: "power2.inOut" }, "finale");
         tl.to(
           copyLines,
           { autoAlpha: 1, yPercent: 0, duration: 1, ease: "power3.out", stagger: 0.12 },
@@ -185,11 +178,10 @@ export default function HeroStage() {
       {/* Final full-bleed hero — sits beneath the card stack until it is revealed. */}
       <div ref={finale} className="invisible absolute inset-0 overflow-hidden bg-[#140806] text-white">
         <img
-          ref={finaleImg}
           src={IMAGES.finale}
           alt=""
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: GRADES.amber }}
+          style={{ filter: "saturate(1.15) contrast(1.08)" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
         <div

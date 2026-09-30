@@ -13,7 +13,7 @@ export const IMAGES = {
   // Extra full-photo screens peeled away after "Every frame".
   frames: [photo(64, 1280, 720), photo(338, 1280, 720)],
   // Revealed last, then zoomed to fill the whole hero.
-  finale: photo(1015, 1920, 1080),
+  finale: photo(184, 1920, 1080),
 };
 
 // Colour grades that give neutral stock photos the cinematic look of the reference.
