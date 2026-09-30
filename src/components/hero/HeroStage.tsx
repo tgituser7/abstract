@@ -8,6 +8,8 @@ import {
   BeginningScreen,
   CollageScreen,
   ExhibitionScreen,
+  FrameThreeScreen,
+  FrameTwoScreen,
   GRADES,
   IMAGES,
   PhotoScreen,
@@ -25,13 +27,15 @@ gsap.registerPlugin(useGSAP);
  *   x – horizontal offset in the diagonal cascade the cards enter from
  */
 const CARDS = [
-  { id: "photo", x: -56, Screen: PhotoScreen, z: 4, scale: 0.78, y: -100 },
-  { id: "thumbs", x: -41, Screen: ThumbsScreen, z: 5, scale: 0.85, y: -67 },
-  { id: "beginning", x: -20, Screen: BeginningScreen, z: 6, scale: 0.93, y: -33 },
-  { id: "red", x: 0, Screen: RedScreen, z: 7, scale: 1, y: 0 },
-  { id: "collage", x: 20, Screen: CollageScreen, z: 3, scale: 0.93, y: 33 },
-  { id: "exhibition", x: 48, Screen: ExhibitionScreen, z: 2, scale: 0.86, y: 67 },
-  { id: "statement", x: 60, Screen: StatementScreen, z: 1, scale: 0.78, y: 100 },
+  { id: "frame2", x: -70, Screen: FrameTwoScreen, z: 5, scale: 0.7, y: -133 },
+  { id: "photo", x: -56, Screen: PhotoScreen, z: 6, scale: 0.78, y: -100 },
+  { id: "thumbs", x: -41, Screen: ThumbsScreen, z: 7, scale: 0.85, y: -67 },
+  { id: "beginning", x: -20, Screen: BeginningScreen, z: 8, scale: 0.93, y: -33 },
+  { id: "red", x: 0, Screen: RedScreen, z: 9, scale: 1, y: 0 },
+  { id: "collage", x: 20, Screen: CollageScreen, z: 4, scale: 0.93, y: 33 },
+  { id: "exhibition", x: 48, Screen: ExhibitionScreen, z: 3, scale: 0.86, y: 67 },
+  { id: "statement", x: 60, Screen: StatementScreen, z: 2, scale: 0.78, y: 100 },
+  { id: "frame3", x: 72, Screen: FrameThreeScreen, z: 1, scale: 0.7, y: 133 },
 ] as const;
 
 // Cards peel away in this order, alternating right (+1) and left (-1).
@@ -40,7 +44,14 @@ const EXITS = [
   { id: "beginning", dir: -1 },
   { id: "thumbs", dir: 1 },
   { id: "photo", dir: -1 },
+  { id: "frame2", dir: 1 },
+  { id: "frame3", dir: -1 },
 ] as const;
+
+// Peel timing (seconds, before SPEED): how long each exit takes, and the gap
+// between one card starting to leave and the next.
+const EXIT_DURATION = 0.9;
+const EXIT_STAGGER = 0.75;
 
 const HIDDEN_AFTER_COLLAPSE = ["collage", "exhibition", "statement"];
 
@@ -48,10 +59,13 @@ const HIDDEN_AFTER_COLLAPSE = ["collage", "exhibition", "statement"];
 const ENTRY_SPREAD = 1.8;
 
 // Playback speed of the whole sequence; raise to make it faster.
-const SPEED = 1.8;
+const SPEED = 1.4;
+
+// Furthest card offset in the column, as a fraction of card height (±133%).
+const COLUMN_REACH = 1.33;
 
 // How far the stage pushes in while the column collapses.
-const PUSH_IN = 1.2;
+const PUSH_IN = 1;
 
 export default function HeroStage() {
   const root = useRef<HTMLDivElement>(null);
@@ -78,6 +92,12 @@ export default function HeroStage() {
         const red = card("red");
         const insetX = (root.current!.offsetWidth - red.offsetWidth * PUSH_IN) / 2;
         const insetY = (root.current!.offsetHeight - red.offsetHeight * PUSH_IN) / 2;
+
+        // Start zoomed out far enough that the whole column — the top and
+        // bottom cards included — fits in the viewport.
+        const columnHeight = red.offsetHeight * (2 * COLUMN_REACH + 0.8);
+        const fitScale = Math.min(0.92, root.current!.offsetHeight / columnHeight);
+
         // Tween plain numbers: browsers normalise inset() strings to shorthand,
         // which GSAP cannot interpolate reliably.
         const clip = { x: insetX, y: insetY };
@@ -89,7 +109,7 @@ export default function HeroStage() {
         const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } }).timeScale(SPEED);
 
         // 1. Cards slide in from the sides into a diagonal cascade…
-        tl.set(world.current, { scale: 0.92, autoAlpha: 0 });
+        tl.set(world.current, { scale: fitScale, autoAlpha: 0 });
         tl.set(finale.current, { autoAlpha: 0 });
         tl.set(clip, { x: insetX, y: insetY, onComplete: applyClip });
         tl.set(finaleImg.current, { scale: 1.35 });
@@ -110,7 +130,7 @@ export default function HeroStage() {
         // …then merge into the vertical column; the finale waits hidden underneath.
         tl.addLabel("merge");
         CARDS.forEach((c) => tl.to(card(c.id), { xPercent: 0, duration: 1.9 }, "merge"));
-        tl.to({}, { duration: 0.5 });
+        tl.to({}, { duration: 0.9 });
 
         // 2. Collapse the column into the red card while pushing in.
         tl.addLabel("collapse");
@@ -121,11 +141,13 @@ export default function HeroStage() {
         tl.to({}, { duration: 0.9 });
 
         // 3. Peel the cards away sideways, in 3D, one after another.
+        tl.addLabel("peel");
         EXITS.forEach(({ id, dir }, i) => {
+          const start = `peel+=${i * EXIT_STAGGER}`;
           tl.to(
             card(id),
-            { xPercent: dir * 125, z: 650, rotationY: dir * 32, duration: 1.15, ease: "power2.in" },
-            i === 0 ? ">" : ">+0.55",
+            { xPercent: dir * 125, z: 650, rotationY: dir * 32, duration: EXIT_DURATION, ease: "power2.in" },
+            start,
           );
           // The newly revealed card settles with a slight counter-tilt.
           const next = EXITS[i + 1];
@@ -133,12 +155,12 @@ export default function HeroStage() {
             tl.fromTo(
               card(next.id),
               { rotationY: -dir * 6 },
-              { rotationY: 0, duration: 1.3, ease: "power2.out", immediateRender: false },
-              "<+0.35",
+              { rotationY: 0, duration: EXIT_STAGGER - 0.2, ease: "power2.out", immediateRender: false },
+              `${start}+=0.2`,
             );
           }
         });
-        tl.set(world.current, { autoAlpha: 0 });
+        tl.set(world.current, { autoAlpha: 0 }, `peel+=${(EXITS.length - 1) * EXIT_STAGGER + EXIT_DURATION}`);
 
         // 4. The last image zooms to fill the section and becomes the hero.
         tl.addLabel("finale", "+=0.5");

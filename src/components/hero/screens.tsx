@@ -10,6 +10,8 @@ export const IMAGES = {
   eye: photo(1005, 480, 300),
   portraits: [64, 65, 91, 338, 1011, 1027, 1005, 177, 349, 1062].map((id) => photo(id, 300, 300)),
   strip: [65, 64, 1011, 338, 91].map((id) => photo(id, 480, 300)),
+  // Extra full-photo screens peeled away after "Every frame".
+  frames: [photo(64, 1280, 720), photo(338, 1280, 720)],
   // Revealed last, then zoomed to fill the whole hero.
   finale: photo(1015, 1920, 1080),
 };
@@ -87,6 +89,33 @@ export function PhotoScreen() {
       <span className={`${mono} absolute bottom-[1.4cqw] right-[1.6cqw] text-[0.8cqw] text-white/80`}>[ Next ]</span>
     </div>
   );
+}
+
+/* ---------- Extra full-photo screens ---------- */
+function FilmScreen({ src, grade, index, words }: { src: string; grade: Grade; index: number; words: [string, string] }) {
+  return (
+    <div className="absolute inset-0 overflow-hidden bg-[#140806]">
+      <Img src={src} grade={grade} className="absolute inset-0 h-full w-full" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
+      <Nav dark menuInverted />
+      <div className="absolute inset-x-[1.6cqw] top-[4.2cqw] h-px bg-white/30" />
+      <p className="font-serif-condensed absolute bottom-[1.8cqw] left-[26%] text-[5.4cqw] leading-none text-[#f4ecd8]">
+        {words[0]} <span className="relative top-[1.2cqw] text-[4.4cqw]">{words[1]}</span>
+      </p>
+      <span className={`${mono} absolute bottom-[1.4cqw] left-[1.6cqw] text-[0.8cqw] text-white/80`}>
+        [ 0{index} ]
+      </span>
+      <span className={`${mono} absolute bottom-[1.4cqw] right-[1.6cqw] text-[0.8cqw] text-white/80`}>[ Next ]</span>
+    </div>
+  );
+}
+
+export function FrameTwoScreen() {
+  return <FilmScreen src={IMAGES.frames[0]} grade="red" index={2} words={["Every", "light"]} />;
+}
+
+export function FrameThreeScreen() {
+  return <FilmScreen src={IMAGES.frames[1]} grade="blue" index={3} words={["Every", "silence"]} />;
 }
 
 /* ---------- 2. Thumbnail index screen ---------- */
